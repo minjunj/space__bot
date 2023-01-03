@@ -3,9 +3,6 @@ import requests
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 
-#space_token = "eyJhbGciOiJSUzUxMiJ9.eyJzdWIiOiI0YnU1TmU0OHNFb2wiLCJhdWQiOiJjaXJjbGV0LXdlYi11aSIsIm9yZ0RvbWFpbiI6ImdzYWluZm90ZWFtIiwibmFtZSI6Im1pbmp1bl9KbyIsImlzcyI6Imh0dHBzOlwvXC9nc2FpbmZvdGVhbS5qZXRicmFpbnMuc3BhY2UiLCJwZXJtX3Rva2VuIjoidVZKVlUyRU0yZUsiLCJwcmluY2lwYWxfdHlwZSI6IlVTRVIiLCJpYXQiOjE2Njc5MDcxODR9.MPRqv5i8AyGkQvnAOt9S4sJcXWEeRafaH6HLE_O6qQXk8A3uCcuJF4Zy2wNbtHGJjYPYShaKSE1ZdpdZbz7uUqvvNx7-uBoy_DeJhZIbZQ-lchho0_TsiAPLcyzIblGtDbTUgPX36rJIXjaIXu8RINcbNErKqC4Tpijqiwd-ifs"
-space_token = os.environ.get("SPACE_TOKEN")
-
 url_full = "https://gsainfoteam.jetbrains.space/api/http/projects/id:3HmDlS2elYQJ/planning/issues?sorting=UPDATED&descending=false&$fields=data(title,description)"
 url_To_slack = "https://hooks.slack.com/services/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" #웹훅 그 url로 가져오세요
 def url_parser(url_full):#주소 박으면 분류해줌
@@ -24,10 +21,9 @@ def url_parser(url_full):#주소 박으면 분류해줌
         #print("a의 값 :" + str(a))
         payload[key[0]] = key[1]
 
-    auth = {'Authorization': f'Bearer {space_token}'}
+    auth = {'Authorization': f'Bearer {os.getenv("SPACE_TOKEN")}'}
     source = requests.get(main_url,params=payload, headers=auth).json()
     src = source["data"]
-    # print(src)
     return src
 
 def print_issues(src):
@@ -50,17 +46,18 @@ def print_issues(src):
     return result
 
 result = print_issues(url_parser(url_full))
-
 JSON = {
-      "attachments": [
-          {
-              "fallback": "Get all issues",
-              "color": "#2eb886",
-              "fields": result,
-              "ts": 123456789
-          }
-      ]
-    }
+    "attachments": [
+        {
+            "fallback": "Get all issues",
+            "color": "#2eb886",
+            "fields": result,
+            "ts": 123456789
+        }
+    ]
+}
+
+
 
 def shot_message_slack(url_To_slack, result):
     source = requests.post(url_To_slack, json=JSON)
